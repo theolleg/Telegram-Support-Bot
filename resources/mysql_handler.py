@@ -1,9 +1,3 @@
-# --------------------------------------------- #
-# Plugin Name           : Telegram Support Bot  #
-# Author Name           : fabston               #
-# File Name             : mysql_handler.py      #
-# --------------------------------------------- #
-
 import pymysql
 import config
 from datetime import datetime
@@ -28,7 +22,7 @@ def createTables():
         try:
             cursor.execute(
                 "	CREATE TABLE `" + tablename + "` (  `userid` int(11) DEFAULT NULL,  `open_ticket` int(4) DEFAULT 0,  `banned` int(4) DEFAULT 0,  \
-                `open_ticket_spam` int(4) DEFAULT 1,  `open_ticket_link` varchar(50) DEFAULT NULL,  `open_ticket_time` datetime NOT NULL DEFAULT '1000-01-01 00:00:00')")
+                `open_ticket_spam` int(4) DEFAULT 1,  `verified` int(4) DEFAULT 0,  `open_ticket_link` varchar(50) DEFAULT NULL,  `open_ticket_time` datetime NOT NULL DEFAULT '1000-01-01 00:00:00', `organization` varchar(50) DEFAULT NULL, `card_number` varchar(50) DEFAULT NULL)")
             return createTables
         except Exception as e:
             print(e)
@@ -48,10 +42,17 @@ def spam(user_id):
         return spam
 
 
+def verif_update(user_id, state, organization, card_number):
+    connection = getConnection()
+    with connection.cursor() as cursor:
+        sql = "UPDATE users SET verified = %s, organization = %s, card_number = %s WHERE userid = %s"
+        cursor.execute(sql, (state, organization, card_number, user_id))
+
+
 def user_tables(user_id):
     connection = getConnection()
     with connection.cursor() as cursor:
-        sql = "SELECT open_ticket, banned, open_ticket_time, open_ticket_spam, open_ticket_link FROM users WHERE userid = %s"
+        sql = "SELECT open_ticket, banned, open_ticket_time, open_ticket_spam, verified, open_ticket_link, card_number, organization FROM users WHERE userid = %s"
         cursor.execute(sql, user_id)
         data = cursor.fetchone()
         return data
@@ -132,6 +133,15 @@ def unban_user(user_id):
         cursor.execute(sql, user_id)
         banned.pop(banned.index(user_id))
         return unban_user
+
+
+def verif_user(card_number):
+    connection = getConnection()
+    with connection.cursor() as cursor:
+        sql = "SELECT * FROM userDataCrm WHERE card_number = %s"
+        cursor.execute(sql, card_number)
+        result = cursor.fetchone()
+        return result
 
 
 createTables = createTables()

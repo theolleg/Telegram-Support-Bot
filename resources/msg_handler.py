@@ -1,9 +1,3 @@
-# --------------------------------------------- #
-# Plugin Name           : Telegram Support Bot  #
-# Author Name           : fabston               #
-# File Name             : msg_handler.py        #
-# --------------------------------------------- #
-
 import config
 from resources import mysql_handler as mysql
 from resources import lang_emojis as emoji
@@ -55,8 +49,7 @@ def snd_handler(user_id, bot, message, txt):
         if message.content_type == 'text':
             bot.send_chat_action(user_id, 'typing')
             bot.send_message(user_id, \
-                             config.text_messages['support_response'].format(
-                                 bot.get_chat(user_id).first_name) + f'\n\n{message.text}', parse_mode='Markdown',
+                             config.text_messages['support_response'] + f'\n\n{message.text}', parse_mode='Markdown',
                              disable_web_page_preview=True)
 
         elif message.content_type == 'photo':
@@ -82,16 +75,16 @@ def snd_handler(user_id, bot, message, txt):
 
 
 # (User - Support Handler)
-def fwd_handler(user_id, bot, message):
+def fwd_handler(user_id, bot, message, user_info):
     # Update the Spamfilter
     mysql.spam(message.chat.id)
     lang_emoji = emoji.lang_emoji(message.from_user.language_code)
 
     if message.content_type == 'text':
-        msg = bot.send_message(config.support_chat, "[{0}{1}](tg://user?id={2}) (#id{2}) | {3}\n\n{4}".format(
+        msg = bot.send_message(config.support_chat, "[{0}{1}](tg://user?id={2}) (#id{2}) | {3}\n{4} {5}\n\n{6}".format(
             message.from_user.first_name,
             ' {0}'.format(message.from_user.last_name) if message.from_user.last_name else '',
-            message.from_user.id, lang_emoji, message.text), parse_mode='Markdown', disable_web_page_preview=True)
+            message.from_user.id, lang_emoji, user_info['organization'], user_info['card_number'], message.text), parse_mode='Markdown', disable_web_page_preview=True)
 
     elif message.content_type == 'photo':
         msg = bot.send_photo(config.support_chat, message.photo[-1].file_id,
@@ -134,11 +127,6 @@ def bad_words_handler(bot, message):
 def time_zone():
     current_time = arrow.now(config.time_zone).strftime('%I:%M %p')
     return current_time
-
-
-def repo():
-    msg = '\n\n[» Source Code](github.com/vsnz/Telegram-Support-Bot)'
-    return msg
 
 
 def spam_handler_warning(bot, user_id, message):
