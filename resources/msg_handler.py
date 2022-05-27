@@ -49,7 +49,7 @@ def snd_handler(user_id, bot, message, txt):
         if message.content_type == 'text':
             bot.send_chat_action(user_id, 'typing')
             bot.send_message(user_id, \
-                             config.text_messages['support_response'] + f'\n\n{message.text}', parse_mode='Markdown',
+                             config.text_messages['support_response'].format(bot.get_chat(user_id).first_name) + f'\n\n{message.text}', parse_mode='Markdown',
                              disable_web_page_preview=True)
 
         elif message.content_type == 'photo':
