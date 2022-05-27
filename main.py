@@ -245,19 +245,18 @@ def ot_handler(message):
 
 @bot.message_handler(commands=['ban_manager'])
 def ban_manager(message: telebot.types.Message):
-    try:
-        if message.chat.id == config.support_chat:
-            hours = int(message.text.split(' ')[1])
-            if message.reply_to_message:
-                manager_id = message.reply_to_message.from_user.id
-                storage.stop_by_manager_id(manager_id)
-                bot.restrict_chat_member(config.support_chat, manager_id, until_date=datetime.now() + timedelta(hours=hours), can_send_messages=False)
-                bot.reply_to(message, '✅ Цей менеджер був заблокований на {hours} годин!')
-            else:
-                bot.reply_to(message, '❌ Отметьте пользователя')
-    except Exception as e:
-        print(e)
-        bot.reply_to(message, '❌ Ошибка віполнения команды')
+    # try:
+    if message.chat.id == config.support_chat:
+        hours = int(message.text.split(' ')[1])
+        if message.reply_to_message:
+            manager_id = message.reply_to_message.from_user.id
+            storage.stop_by_manager_id(manager_id)
+            bot.restrict_chat_member(config.support_chat, manager_id, until_date=datetime.now() + timedelta(hours=hours), can_send_messages=False)
+            bot.reply_to(message, '✅ Цей менеджер був заблокований на {hours} годин!')
+        else:
+            bot.reply_to(message, '❌ Отметьте пользователя')
+    # except Exception as e:
+    #     bot.reply_to(message, '❌ Ошибка віполнения команды')
 
 
 # Message Forward Handler (User - Support)
