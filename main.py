@@ -255,7 +255,8 @@ def ban_manager(message: telebot.types.Message):
                 bot.reply_to(message, '✅ Цей менеджер був заблокований на {hours} годин!')
             else:
                 bot.reply_to(message, '❌ Отметьте пользователя')
-    except:
+    except Exception as e:
+        print(e)
         bot.reply_to(message, '❌ Ошибка віполнения команды')
 
 
