@@ -58,7 +58,7 @@ def verif_update(user_id, state, organization, card_number):
 def user_tables(user_id):
     connection = getConnection()
     with connection.cursor() as cursor:
-        sql = "SELECT open_ticket, banned, open_ticket_time, open_ticket_spam, verified, open_ticket_link, card_number, organization FROM users WHERE userid = %s"
+        sql = "SELECT open_ticket, banned, open_ticket_time, open_ticket_spam, verified, open_ticket_link, card_number, organization, ticket_number FROM users WHERE userid = %s"
         cursor.execute(sql, user_id)
         data = cursor.fetchone()
         return data
