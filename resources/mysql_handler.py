@@ -112,7 +112,7 @@ def update_telephone(user_id, telephone):
         sql = "UPDATE users SET card_number = %s WHERE userid = %s"
         cursor.execute(sql, (telephone, user_id))
 
-def update_ticker(user_id, number):
+def update_ticket(user_id, number):
     connection = getConnection()
     with connection.cursor() as cursor:
         sql = "UPDATE users SET ticket_number = %s WHERE userid = %s"
