@@ -126,7 +126,7 @@ def ot_handler(message):
         pass
 
 
-# Close a ticket manually #TODO: add stop chat
+# Close a ticket manually
 @bot.message_handler(commands=['close', 'c'])
 def ot_handler(message):
     if message.chat.id == config.support_chat:
@@ -323,6 +323,7 @@ def echo_all(message):
                             return
                         else:
                             bot.reply_to(message, "Цей користувач вже в обробці")
+                            return
 
             except telebot.apihelper.ApiException:
                 bot.reply_to(message, '❌ Невдалось відправити повідомлення... \nМожливо користувач заблокував бота.')
