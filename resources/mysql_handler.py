@@ -22,7 +22,7 @@ def createTables():
         try:
             cursor.execute(
                 "	CREATE TABLE `" + tablename + "` (  `userid` int(11) DEFAULT NULL,  `open_ticket` int(4) DEFAULT 0,  `banned` int(4) DEFAULT 0,  \
-                `open_ticket_spam` int(4) DEFAULT 1,  `verified` int(4) DEFAULT 0,  `open_ticket_link` varchar(50) DEFAULT NULL,  `open_ticket_time` datetime NOT NULL DEFAULT '1000-01-01 00:00:00', `organization` varchar(50) DEFAULT NULL, `card_number` varchar(50) DEFAULT NULL)")
+                `open_ticket_spam` int(4) DEFAULT 1,  `verified` int(4) DEFAULT 0,  `open_ticket_link` varchar(50) DEFAULT NULL,  `open_ticket_time` datetime NOT NULL DEFAULT '1000-01-01 00:00:00', `organization` varchar(50) DEFAULT NULL, `card_number` varchar(50) DEFAULT NULL, `ticket_number` varchar(50) DEFAULT NULL)")
             return createTables
         except Exception as e:
             print(e)
@@ -98,6 +98,25 @@ def open_ticket(user_id):
         cursor.execute(sql, (now, user_id))
         open_tickets.append(user_id)
         return open_ticket
+
+
+def update_name(user_id, name):
+    connection = getConnection()
+    with connection.cursor() as cursor:
+        sql = "UPDATE users SET organization = %s WHERE userid = %s"
+        cursor.execute(sql, (name, user_id))
+
+def update_telephone(user_id, telephone):
+    connection = getConnection()
+    with connection.cursor() as cursor:
+        sql = "UPDATE users SET card_number = %s WHERE userid = %s"
+        cursor.execute(sql, (telephone, user_id))
+
+def update_ticker(user_id, number):
+    connection = getConnection()
+    with connection.cursor() as cursor:
+        sql = "UPDATE users SET ticket_number = %s WHERE userid = %s"
+        cursor.execute(sql, (number, user_id))
 
 
 def post_open_ticket(link, msg_id):

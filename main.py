@@ -1,10 +1,10 @@
-import config
+import config, storage
 from resources import mysql_handler as mysql
 from resources import markups_handler as markup
 from resources import msg_handler as msg
 
 import telebot
-from datetime import datetime
+from datetime import datetime, timedelta
 import arrow
 
 bot = telebot.TeleBot(config.token)
@@ -26,17 +26,38 @@ def callback_inline(call):
 @bot.message_handler(commands=['start'])
 def start(message):
     if message.chat.type == 'private':
+        
         bot.send_message(message.chat.id,
                          config.text_messages['start'].format(message.from_user.first_name),
                          parse_mode='Markdown',
                          disable_web_page_preview=True,
-                         #reply_markup=markup.faqButton()
+                         reply_markup=markup.registerTypeKeyboard()
                          )
         mysql.start_bot(message.chat.id)
-        bot.register_next_step_handler(message, mtouser)
+        bot.register_next_step_handler(message, choose_registration_type)
 
     else:
         bot.reply_to(message, 'Будь ласка, надішліть мені приватні повідомлення, якщо ви хочете поговорити з командою підтримки.')
+
+
+def choose_registration_type(message: telebot.types.Message):
+    try:
+        if message.text not in (markup.card, markup.ticket):
+            bot.send_message(message.chat.id, text="Верифікація не пройдена, натисніть /start щоб вибрати тип регестрації", reply_markup=markup.ReplyKeyboardRemove())
+            return
+        
+        if message.text == markup.card:
+            bot.send_message(message.chat.id, "Введіть номер вашої карти", reply_markup=markup.ReplyKeyboardRemove())
+            bot.register_next_step_handler(message, mtouser)
+            return
+        if message.text == markup.ticket:
+            bot.send_message(message.chat.id, "Введіть ваше ім'я", reply_markup=markup.ReplyKeyboardRemove())
+            bot.register_next_step_handler(message, register_name)
+            return
+
+    except Exception as e:
+        pass
+
 
 def mtouser(message):
     org = mysql.verif_user(message.text)
@@ -45,6 +66,16 @@ def mtouser(message):
     else:
         mysql.verif_update(message.chat.id, 1, org['organization'], org['card_number'])
         msg = bot.send_message(message.chat.id, text=f"Доброго дня, {org['organization']}, напишіть ваше запитання")
+
+def register_name(message: telebot.types.Message):
+    mysql.update_name(message.from_user.id, message.text)
+    bot.send_message(message.chat.id, "Введіть ваш номер телефону")
+    bot.register_next_step_handler(message, register_telephone)
+
+def register_telephone(message: telebot.types.Message):
+    mysql.update_telephone(message.from_user.id, message.text)
+    bot.send_message(message.chat.id, text=f"Доброго дня, напишіть ваше запитання")
+
 
 # FAQ Command
 @bot.message_handler(commands=['faq'])
@@ -90,7 +121,7 @@ def ot_handler(message):
         pass
 
 
-# Close a ticket manually
+# Close a ticket manually #TODO: add stop chat
 @bot.message_handler(commands=['close', 'c'])
 def ot_handler(message):
     if message.chat.id == config.support_chat:
@@ -105,6 +136,7 @@ def ot_handler(message):
                 # Reset Open Tickets as well as the Spamfilter
                 mysql.reset_open_ticket(user_id)
                 bot.reply_to(message, '✅ Запит закритий')
+                storage.stop_link(user_id)
         else:
             bot.reply_to(message, 'ℹ️  Потрібно відповісти на повідомлення')
     else:
@@ -206,6 +238,22 @@ def ot_handler(message):
         bot.reply_to(message, '❌ Неизвесный пользователь...')
 
 
+@bot.message_handler(commands=['ban_manager'])
+def ban_manager(message: telebot.types.Message):
+    try:
+        if message.chat.id == config.support_chat:
+            hours = int(message.text.split(' ')[1])
+            if message.reply_to_message:
+                manager_id = message.reply_to_message.from_user.id
+                storage.stop_by_manager_id(manager_id)
+                bot.restrict_chat_member(config.support_chat, manager_id, until_date=datetime.now() + timedelta(hours=hours), can_send_messages=False)
+                bot.reply_to(message, '✅ Цей менеджер був заблокований на {hours} годин!')
+            else:
+                bot.reply_to(message, '❌ Отметьте пользователя')
+    except:
+        bot.reply_to(message, '❌ Ошибка віполнения команды')
+
+
 # Message Forward Handler (User - Support)
 @bot.message_handler(func=lambda message: message.chat.type == 'private', content_types=['text', 'photo', 'document'])
 def echo_all(message):
@@ -265,8 +313,11 @@ def echo_all(message):
 
                 else:
                     if message.reply_to_message and '(#id' in msg_check:
-                        msg.snd_handler(user_id, bot, message, text)
-                        return
+                        if storage.check_user_to_manager(user_id, message.from_user.id):
+                            msg.snd_handler(user_id, bot, message, text)
+                            return
+                        else:
+                            bot.reply_to(message, "Цей користувач вже в обробці")
 
             except telebot.apihelper.ApiException:
                 bot.reply_to(message, '❌ Невдалось відправити повідомлення... \nМожливо користувач заблокував бота.')
