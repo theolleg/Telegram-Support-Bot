@@ -26,6 +26,12 @@ def createTables():
             return createTables
         except Exception as e:
             print(e)
+        try:
+            cursor.execute(f'''ALTER TABLE {tablename}
+                               ADD COLUMN `ticket_number` varchar(50) DEFAULT NULL''')
+        except Exception as e:
+            print(e)
+                
 
 
 def spam(user_id):
