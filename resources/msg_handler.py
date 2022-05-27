@@ -75,7 +75,9 @@ def snd_handler(user_id, bot, message, txt):
 
 
 # (User - Support Handler)
-def fwd_handler(user_id, bot, message, user_info):
+def fwd_handler(user_id, bot, message, user_info=None):
+    if user_info == None:
+        return
     # Update the Spamfilter
     mysql.spam(message.chat.id)
     lang_emoji = emoji.lang_emoji(message.from_user.language_code)
