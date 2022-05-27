@@ -121,7 +121,7 @@ def update_telephone(user_id, telephone):
 def update_ticket(user_id, number):
     connection = getConnection()
     with connection.cursor() as cursor:
-        sql = "UPDATE users SET ticket_number = %s WHERE userid = %s"
+        sql = "UPDATE users SET ticket_number = %s, verified=1 WHERE userid = %s"
         cursor.execute(sql, (number, user_id))
 
 
