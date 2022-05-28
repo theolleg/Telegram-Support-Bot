@@ -23,3 +23,5 @@ def stop_by_manager_id(managerId: int):
         if val == managerId:
             __LINK_USER_TO_MANAGER.pop(key)
 
+def get_manager_by_user_id(user_id: int) -> int:
+    return __LINK_USER_TO_MANAGER.get(user_id)

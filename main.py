@@ -116,10 +116,16 @@ def ot_handler(message):
             else:
                 alert = ' ↳ '
 
-            ot_msg += "• [{0}{1}](tg://user?id={2}) (`{2}`)\n{5}_{3}_ [➜ Перейти до повідоблення]({4})\n".format(
+            managerName = "new"
+            manager_id = storage.get_manager_by_user_id(int(user))
+            if manager_id is not None:
+                manager = bot.get_chat(manager_id)
+                managerName = '[{0}{1}](tg://user?id={2})'.format(manager.first_name, manager.last_name, manager.id)
+                
+            ot_msg += "• [{0}{1}](tg://user?id={2}) (`{2}`) -> {5}\n{5}_{3}_ [➜ Перейти до повідоблення]({4})\n".format(
                 bot.get_chat(int(user)).first_name,
                 ' {0}'.format(bot.get_chat(int(user)).last_name) if bot.get_chat(int(user)).last_name else '',
-                int(user), time_since, ot_link, alert)
+                int(user), time_since, ot_link, alert, managerName)
 
         bot.send_message(message.chat.id, ot_msg, parse_mode='Markdown')
     else:
@@ -249,7 +255,7 @@ def ban_manager(message: telebot.types.Message):
         if message.from_user.id not in config.admin_users:
             bot.reply_to(message, '❌ Вы не админ')
             return 
-            
+
         if message.chat.id == config.support_chat:
             hours = int(message.text.split(' ')[1])
             if message.reply_to_message:
