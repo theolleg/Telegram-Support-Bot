@@ -73,7 +73,7 @@ def register_name(message: telebot.types.Message):
     bot.register_next_step_handler(message, register_telephone)
 
 def register_telephone(message: telebot.types.Message):
-    mysql.update_telephone(message.from_user.id, message.text)
+    mysql.update_telephone(message.from_user.id, message.text.replace('+', '').replace('(', '').replace(')', '').replace('-', '').replace(' ', ''))
     bot.send_message(message.chat.id, text=f"Введіть номер талону")
     bot.register_next_step_handler(message, register_ticket)
 
