@@ -86,7 +86,7 @@ def fwd_handler(user_id, bot, message, user_info=None):
         msg = bot.send_message(config.support_chat, "[{0}{1}](tg://user?id={2}) (#id{2}) | {3}\n{4} {5} {7}\n\n{6}".format(
             message.from_user.first_name,
             ' {0}'.format(message.from_user.last_name) if message.from_user.last_name else '',
-            message.from_user.id, lang_emoji, user_info['organization'], user_info['card_number'], message.text, user_info["ticket_number"] if user_info["ticket_number"] else ''), parse_mode='Markdown', disable_web_page_preview=True)
+            message.from_user.id, lang_emoji, user_info['organization'], user_info['card_number'], message.text, user_info["ticket_number"] if user_info["ticket_number"] and len(user_info['card_number']) < 13 else ''), parse_mode='Markdown', disable_web_page_preview=True)
 
     elif message.content_type == 'photo':
         msg = bot.send_photo(config.support_chat, message.photo[-1].file_id,
