@@ -246,6 +246,10 @@ def ot_handler(message):
 @bot.message_handler(commands=['ban_manager'])
 def ban_manager(message: telebot.types.Message):
     try:
+        if message.from_user.id not in config.admin_users:
+            bot.reply_to(message, '❌ Вы не админ')
+            return 
+            
         if message.chat.id == config.support_chat:
             hours = int(message.text.split(' ')[1])
             if message.reply_to_message:
