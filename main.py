@@ -120,7 +120,7 @@ def ot_handler(message):
             manager_id = storage.get_manager_by_user_id(int(user))
             if manager_id is not None:
                 manager = bot.get_chat(manager_id)
-                managerName = '[{0}{1}](tg://user?id={2})'.format(manager.first_name, manager.last_name, manager.id)
+                managerName = '[{0}](tg://user?id={1})'.format(manager.first_name, manager.id)
 
             ot_msg += "• [{0}{1}](tg://user?id={2}) (`{2}`) -> {6}\n{5}_{3}_ [➜ Перейти до повідоблення]({4})\n".format(
                 bot.get_chat(int(user)).first_name,
