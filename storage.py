@@ -19,7 +19,7 @@ def stop_link(userId: int):
     __LINK_USER_TO_MANAGER.pop(userId)
 
 def stop_by_manager_id(managerId: int):
-    for key, val in __LINK_USER_TO_MANAGER.items():
+    for key, val in list(__LINK_USER_TO_MANAGER.items()):
         if val == managerId:
             __LINK_USER_TO_MANAGER.pop(key)
 
