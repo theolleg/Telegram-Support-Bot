@@ -270,6 +270,25 @@ def ban_manager(message: telebot.types.Message):
         bot.reply_to(message, '❌ Ошибка віполнения команды')
 
 
+@bot.message_handler(commands=['unassing', 'u'])
+def ban_manager(message: telebot.types.Message):
+    try:
+        if message.from_user.id not in config.admin_users:
+            bot.reply_to(message, '❌ Вы не админ')
+            return
+        
+        if message.chat.id == config.support_chat:
+            if message.reply_to_message:
+                manager_id = message.reply_to_message.from_user.id
+                storage.stop_by_manager_id(manager_id)
+                bot.reply_to(message, f'✅ Цей менеджер був знатий з обробки клієнта')
+            else:
+                bot.reply_to(message, '❌ Отметьте пользователя')
+
+    except Exception as e:
+        print(e)
+        bot.reply_to(message, '❌ Ошибка віполнения команды')
+
 # Message Forward Handler (User - Support)
 @bot.message_handler(func=lambda message: message.chat.type == 'private', content_types=['text', 'photo', 'document'])
 def echo_all(message):
