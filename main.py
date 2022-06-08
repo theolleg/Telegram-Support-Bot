@@ -270,7 +270,7 @@ def ban_manager(message: telebot.types.Message):
         bot.reply_to(message, '❌ Ошибка віполнения команды')
 
 
-@bot.message_handler(commands=['unassing', 'u'])
+@bot.message_handler(commands=['unasing', 'u'])
 def ban_manager(message: telebot.types.Message):
     try:
         if message.from_user.id not in config.admin_users:
